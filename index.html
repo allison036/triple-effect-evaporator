@@ -3,278 +3,334 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Backward Feed Triple Effect Evaporator Solver</title>
+  <title>Triple Effect Evaporator Solver - Backward Feed</title>
   
   <!-- MathJax Configuration for LaTeX support -->
   <script>
     window.MathJax = {
       tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+        displayMath: [['$$', '$$'], ['[', ']']]
       }
     };
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
+    :root {
+      --primary-color: #0056b3;
+      --secondary-color: #003d80;
+      --bg-color: #f4f7f6;
+      --card-bg: #ffffff;
+      --border-color: #dee2e6;
+      --text-color: #333333;
+    }
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      padding: 0;
-      background-color: #f4f7f6;
-      color: #333;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
     }
     .app-container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
-    h1, h2, h3 {
-      color: #0056b3;
+    h1, h2, h3, h4 {
+      color: var(--primary-color);
+      margin-top: 0;
     }
-    .metadata {
+    .header-banner {
+      border-bottom: 3px solid var(--primary-color);
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+    .metadata-bar {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
       background-color: #e9ecef;
-      padding: 10px 15px;
-      border-left: 5px solid #0056b3;
-      margin-bottom: 20px;
+      padding: 12px 20px;
+      border-radius: 6px;
       font-size: 0.95em;
+      margin-bottom: 25px;
     }
-    .instructions {
+    .instructions-card {
       background-color: #e8f4f8;
-      border: 1px solid #bce8f1;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
+      border-left: 5px solid var(--primary-color);
+      padding: 15px 20px;
+      border-radius: 4px;
+      margin-bottom: 25px;
+    }
+    .instructions-card ul {
+      margin: 5px 0 0 20px;
+      padding: 0;
     }
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
     }
     .input-card {
-      background: #fafafa;
-      border: 1px solid #ddd;
-      padding: 15px;
-      border-radius: 5px;
+      background: #fdfdfd;
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     }
     .input-card h4 {
-      margin-top: 0;
-      color: #333;
-      border-bottom: 2px solid #0056b3;
-      padding-bottom: 5px;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+      font-size: 1.1em;
     }
     .form-group {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .form-group label {
-      font-size: 0.9em;
+      font-size: 0.88em;
+      font-weight: 600;
+      color: #495057;
       margin-right: 10px;
     }
     .form-group input {
-      width: 100px;
-      padding: 5px;
-      border: 1px solid #ccc;
+      width: 110px;
+      padding: 6px 8px;
+      border: 1px solid #ced4da;
       border-radius: 4px;
       text-align: right;
+      font-size: 0.9em;
+    }
+    .form-group input:focus {
+      border-color: var(--primary-color);
+      outline: none;
     }
     .btn-container {
       text-align: center;
-      margin: 20px 0;
+      margin: 30px 0;
     }
-    .btn {
-      background-color: #0056b3;
+    .btn-solve {
+      background-color: var(--primary-color);
       color: white;
       border: none;
-      padding: 12px 25px;
-      font-size: 16px;
-      border-radius: 5px;
+      padding: 14px 35px;
+      font-size: 1.1em;
+      font-weight: bold;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.2s, transform 0.1s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .btn:hover {
-      background-color: #003d80;
+    .btn-solve:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-1px);
     }
-    .unit-toggle {
-      margin-bottom: 15px;
-      text-align: right;
+    .btn-solve:active {
+      transform: translateY(1px);
     }
-    .unit-toggle button {
-      padding: 6px 12px;
-      border: 1px solid #0056b3;
-      background: #fff;
-      color: #0056b3;
-      cursor: pointer;
-      border-radius: 4px;
+    .diagram-section {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      text-align: center;
     }
-    .unit-toggle button.active {
-      background: #0056b3;
-      color: #fff;
+    .diagram-container svg {
+      max-width: 100%;
+      height: auto;
     }
     .results-section {
       background: #f8f9fa;
-      border: 1px solid #c3e6cb;
-      padding: 20px;
-      border-radius: 5px;
+      border: 1px solid #b2d8d8;
+      border-radius: 8px;
+      padding: 25px;
       margin-top: 20px;
+    }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .unit-toggle button {
+      padding: 8px 16px;
+      border: 1px solid var(--primary-color);
+      background: #ffffff;
+      color: var(--primary-color);
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .unit-toggle button.active {
+      background: var(--primary-color);
+      color: #ffffff;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 15px;
+      background: #ffffff;
     }
     table, th, td {
-      border: 1px solid #dee2e6;
+      border: 1px solid var(--border-color);
     }
     th, td {
-      padding: 10px;
+      padding: 12px 15px;
       text-align: center;
     }
     th {
-      background-color: #0056b3;
+      background-color: var(--primary-color);
       color: white;
+      font-weight: 600;
     }
-    .diagram-container {
-      text-align: center;
-      margin: 30px 0;
-      background: #fff;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
     }
-    svg {
-      max-width: 100%;
-      height: auto;
+    .highlight-row {
+      background-color: #e8f4f8 !important;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <h1>Triple-Effect Evaporator Solver (Backward Feed)</h1>
   
-  <div class="metadata">
-    <p><strong>Author:</strong> ALLISON VERÓNICA PÉREZ LOERA</p>
-    <p><strong>Date of Creation:</strong> October 2026</p>
-    <p><strong>Course:</strong> Unit Operations II - Facultad de Ciencias Químicas, UACH</p>
+  <div class="header-banner">
+    <h1>Triple-Effect Evaporator Heat Balance Solver</h1>
+    <p style="margin:0; color:#6c757d; font-size:1.05em;">Backward Feed Mode Operation Analysis</p>
   </div>
 
-  <div class="instructions">
-    <h3>Instructions & User Guide</h3>
-    <p>This application calculates the material and energy balances for a <strong>Backward Feed Triple-Effect Evaporator</strong> system.</p>
+  <div class="metadata-bar">
+    <span><strong>Developer:</strong> ALLISON VERÓNICA PÉREZ LOERA</span>
+    <span><strong>Course:</strong> Unit Operations II</span>
+    <span><strong>Institution:</strong> Universidad Autónoma de Chihuahua (UACH)</span>
+    <span><strong>Date:</strong> October 2026</span>
+  </div>
+
+  <div class="instructions-card">
+    <h3>User Instructions & Mathematical Basis</h3>
+    <p>This software automates the mass and enthalpy balances for a triple-effect backward feed evaporator system.</p>
     <ul>
-      <li>Enter all operating parameters in SI units in the fields below.</li>
-      <li>Feed enters Effect III ($F_1 = L_3$) and concentrated liquid exits Effect I ($L_1$). Fresh steam $W_1$ enters Effect I.</li>
-      <li>The program applies mass and enthalpy balance equations:
-        $$\sum F_{in} = \sum F_{out}$$
-        $$F_{in} \cdot h_{in} + Q = F_{out} \cdot h_{out}$$
+      <li>In <strong>backward feed</strong> mode, fresh feed solution enters the coolest effect ($F_1 = L_3$, Effect III) and flows sequentially toward Effect I ($L_2 \rightarrow L_1$), where the final concentrated product exits. Fresh steam ($W_1$) enters Effect I.</li>
+      <li>Enter all operating parameters in <strong>SI units</strong> in the input fields below and click <strong>"Solve Heat Balance"</strong>.</li>
+      <li>The system formulates mass balance equations:
+        $$\text{Solute Balance: } F_1 x_{F1} = L_1 x_{S3}$$
+        $$\text{Overall Material Balance: } F_1 = L_1 + V_1 + V_2 + V_3$$
       </li>
-      <li>Click <strong>"Solve Heat Balance"</strong> to compute vapor flows ($W_1$), liquid flow rates ($L_1, L_2, L_3$), and overall steam economy.</li>
-      <li>Use the unit toggle to display results in SI or British units.</li>
+      <li>Simultaneous energy equations are solved dynamically using linear algebra matrix elimination.</li>
+      <li>Use the toggle in the results section to switch output display between <strong>SI Units</strong> ($\text{kg/s}$) and <strong>British/Imperial Units</strong> ($\text{lb/h}$).</li>
     </ul>
   </div>
 
   <form id="evaporatorForm">
-    <h3>Input Data (SI Units)</h3>
+    <h3>System Operating Inputs (SI Units)</h3>
+    
     <div class="grid-container">
       
-      <!-- General Feed & Pressures -->
+      <!-- Card 1: Mass & Concentrations -->
       <div class="input-card">
-        <h4>System Operating Conditions</h4>
+        <h4>1. Mass Flow & Concentrations</h4>
         <div class="form-group">
-          <label for="F1">Feed Flow Rate ($F_1 = L_3$) [kg/s]:</label>
+          <label for="F1">Feed Flow Rate ($F_1$) [kg/s]:</label>
           <input type="number" step="any" id="F1" value="2.5" required>
         </div>
         <div class="form-group">
-          <label for="xF1">Solute Concentration at Feed ($x_{F1}$):</label>
+          <label for="xF1">Mass Fraction at Feed ($x_{F1}$):</label>
           <input type="number" step="any" id="xF1" value="0.10" required>
         </div>
         <div class="form-group">
-          <label for="xS3">Solute Concentration at Product ($x_{S3} = x_{L1}$):</label>
+          <label for="xS3">Mass Fraction at Product ($x_{S3}$):</label>
           <input type="number" step="any" id="xS3" value="0.50" required>
         </div>
         <div class="form-group">
-          <label for="pW1">Pressure Steam $p_{W1}$ [kPa]:</label>
+          <label for="pW1">Steam Pressure ($p_{W1}$) [kPa]:</label>
           <input type="number" step="any" id="pW1" value="205" required>
         </div>
         <div class="form-group">
-          <label for="pL1">Effect I Pressure $p_{L1}$ [kPa]:</label>
+          <label for="pL1">Effect I Pressure ($p_{L1}$) [kPa]:</label>
           <input type="number" step="any" id="pL1" value="101.3" required>
         </div>
         <div class="form-group">
-          <label for="pL2">Effect II Pressure $p_{L2}$ [kPa]:</label>
+          <label for="pL2">Effect II Pressure ($p_{L2}$) [kPa]:</label>
           <input type="number" step="any" id="pL2" value="47.5" required>
         </div>
         <div class="form-group">
-          <label for="pL3">Effect III Pressure $p_{L3}$ [kPa]:</label>
+          <label for="pL3">Effect III Pressure ($p_{L3}$) [kPa]:</label>
           <input type="number" step="any" id="pL3" value="13.5" required>
         </div>
       </div>
 
-      <!-- Heat Capacities & Heat Transfer Coefficients -->
+      <!-- Card 2: Heat Capacities & Coefficients -->
       <div class="input-card">
-        <h4>Heat Capacities & Coefficients</h4>
+        <h4>2. Heat Capacities & Heat Coefficients</h4>
         <div class="form-group">
-          <label for="Cp1">Cp Liquid Effect I ($Cp_1$) [kJ/kg·°C]:</label>
+          <label for="Cp1">Liquid $Cp_1$ (Effect I) [kJ/kg·°C]:</label>
           <input type="number" step="any" id="Cp1" value="3.14" required>
         </div>
         <div class="form-group">
-          <label for="Cp2">Cp Liquid Effect II ($Cp_2$) [kJ/kg·°C]:</label>
+          <label for="Cp2">Liquid $Cp_2$ (Effect II) [kJ/kg·°C]:</label>
           <input type="number" step="any" id="Cp2" value="3.50" required>
         </div>
         <div class="form-group">
-          <label for="Cp3">Cp Liquid Effect III ($Cp_3$) [kJ/kg·°C]:</label>
+          <label for="Cp3">Liquid $Cp_3$ (Effect III) [kJ/kg·°C]:</label>
           <input type="number" step="any" id="Cp3" value="3.85" required>
         </div>
         <div class="form-group">
-          <label for="U1">Coeff. $U_1$ [W/m²·°C]:</label>
+          <label for="U1">Overall Coeff. $U_1$ [W/m²·°C]:</label>
           <input type="number" step="any" id="U1" value="2300" required>
         </div>
         <div class="form-group">
-          <label for="U2">Coeff. $U_2$ [W/m²·°C]:</label>
+          <label for="U2">Overall Coeff. $U_2$ [W/m²·°C]:</label>
           <input type="number" step="any" id="U2" value="1500" required>
         </div>
         <div class="form-group">
-          <label for="U3">Coeff. $U_3$ [W/m²·°C]:</label>
+          <label for="U3">Overall Coeff. $U_3$ [W/m²·°C]:</label>
           <input type="number" step="any" id="U3" value="1000" required>
         </div>
       </div>
 
-      <!-- Enthalpies & Latent Heats -->
+      <!-- Card 3: Temperatures & Enthalpies -->
       <div class="input-card">
-        <h4>Temperatures & Enthalpies</h4>
+        <h4>3. Operating Temperatures & Latent Heats</h4>
         <div class="form-group">
-          <label for="TF">Feed Temp ($T_F = T_{L3}$) [°C]:</label>
+          <label for="TF">Feed Temperature ($T_F$) [°C]:</label>
           <input type="number" step="any" id="TF" value="20" required>
         </div>
         <div class="form-group">
-          <label for="T1">Temp Effect I ($T_{L1}$) [°C]:</label>
+          <label for="T1">Effect I Temp ($T_1$) [°C]:</label>
           <input type="number" step="any" id="T1" value="100" required>
         </div>
         <div class="form-group">
-          <label for="T2">Temp Effect II ($T_{L2}$) [°C]:</label>
+          <label for="T2">Effect II Temp ($T_2$) [°C]:</label>
           <input type="number" step="any" id="T2" value="80" required>
         </div>
         <div class="form-group">
-          <label for="T3">Temp Effect III ($T_{L3}$) [°C]:</label>
+          <label for="T3">Effect III Temp ($T_3$) [°C]:</label>
           <input type="number" step="any" id="T3" value="52" required>
         </div>
         <div class="form-group">
-          <label for="lambdaW1">Latent Heat Steam $\lambda_{W1}$ [kJ/kg]:</label>
+          <label for="lambdaW1">Steam Latent Heat ($\lambda_{W1}$) [kJ/kg]:</label>
           <input type="number" step="any" id="lambdaW1" value="2200" required>
         </div>
         <div class="form-group">
-          <label for="lambdaV1">Latent Heat Vapor 1 $\lambda_{V1}$ [kJ/kg]:</label>
+          <label for="lambdaV1">Vapor 1 Latent Heat ($\lambda_{V1}$) [kJ/kg]:</label>
           <input type="number" step="any" id="lambdaV1" value="2257" required>
         </div>
         <div class="form-group">
-          <label for="lambdaV2">Latent Heat Vapor 2 $\lambda_{V2}$ [kJ/kg]:</label>
+          <label for="lambdaV2">Vapor 2 Latent Heat ($\lambda_{V2}$) [kJ/kg]:</label>
           <input type="number" step="any" id="lambdaV2" value="2308" required>
         </div>
       </div>
@@ -282,126 +338,132 @@
     </div>
 
     <div class="btn-container">
-      <button type="button" class="btn" onclick="calculateEvaporator()">Solve Heat Balance</button>
+      <button type="button" class="btn-solve" onclick="calculateEvaporator()">Solve Heat Balance</button>
     </div>
   </form>
 
-  <!-- Process Diagram Sketch -->
-  <div class="diagram-container">
-    <h3>Backward Feed Evaporator Process Diagram</h3>
-    <svg width="750" height="280" viewBox="0 0 750 280">
-      <!-- Effect III -->
-      <rect x="50" y="70" width="120" height="140" rx="10" fill="#e3f2fd" stroke="#0056b3" stroke-width="2"/>
-      <text x="110" y="145" text-anchor="middle" font-weight="bold">Effect III</text>
-      
-      <!-- Effect II -->
-      <rect x="300" y="70" width="120" height="140" rx="10" fill="#e3f2fd" stroke="#0056b3" stroke-width="2"/>
-      <text x="360" y="145" text-anchor="middle" font-weight="bold">Effect II</text>
-      
-      <!-- Effect I -->
-      <rect x="550" y="70" width="120" height="140" rx="10" fill="#e3f2fd" stroke="#0056b3" stroke-width="2"/>
-      <text x="610" y="145" text-anchor="middle" font-weight="bold">Effect I</text>
+  <!-- Process Diagram -->
+  <div class="diagram-section">
+    <h3>Backward Feed Triple-Effect Evaporator Flowsheet</h3>
+    <div class="diagram-container">
+      <svg width="780" height="260" viewBox="0 0 780 260">
+        <!-- Effect III -->
+        <rect x="50" y="60" width="130" height="150" rx="8" fill="#e3f2fd" stroke="#0056b3" stroke-width="2.5"/>
+        <text x="115" y="130" text-anchor="middle" font-weight="bold" fill="#0056b3" font-size="15">Effect III</text>
+        <text x="115" y="150" text-anchor="middle" font-size="12" fill="#555" id="diag_T3">T3 = 52 °C</text>
 
-      <!-- Feed F1 / L3 into Effect III -->
-      <path d="M 10 180 L 50 180" stroke="#28a745" stroke-width="3" marker-end="url(#arrow)"/>
-      <text x="25" y="170" font-size="12" fill="#28a745" font-weight="bold">Feed (F1)</text>
+        <!-- Effect II -->
+        <rect x="325" y="60" width="130" height="150" rx="8" fill="#e3f2fd" stroke="#0056b3" stroke-width="2.5"/>
+        <text x="390" y="130" text-anchor="middle" font-weight="bold" fill="#0056b3" font-size="15">Effect II</text>
+        <text x="390" y="150" text-anchor="middle" font-size="12" fill="#555" id="diag_T2">T2 = 80 °C</text>
 
-      <!-- Liquid Flow L3 to Effect II -->
-      <path d="M 170 180 L 300 180" stroke="#28a745" stroke-width="3" marker-end="url(#arrow)"/>
-      <text x="235" y="170" font-size="12" fill="#28a745" text-anchor="middle">L3</text>
+        <!-- Effect I -->
+        <rect x="600" y="60" width="130" height="150" rx="8" fill="#e3f2fd" stroke="#0056b3" stroke-width="2.5"/>
+        <text x="665" y="130" text-anchor="middle" font-weight="bold" fill="#0056b3" font-size="15">Effect I</text>
+        <text x="665" y="150" text-anchor="middle" font-size="12" fill="#555" id="diag_T1">T1 = 100 °C</text>
 
-      <!-- Liquid Flow L2 to Effect I -->
-      <path d="M 420 180 L 550 180" stroke="#28a745" stroke-width="3" marker-end="url(#arrow)"/>
-      <text x="485" y="170" font-size="12" fill="#28a745" text-anchor="middle">L2</text>
+        <!-- Streams -->
+        <!-- Feed F1 into Effect III -->
+        <path d="M 5 185 L 50 185" stroke="#28a745" stroke-width="3" marker-end="url(#arrow)"/>
+        <text x="25" y="175" font-size="11" fill="#28a745" font-weight="bold" text-anchor="middle">Feed F1 (L3)</text>
 
-      <!-- Product L1 out of Effect I -->
-      <path d="M 670 180 L 740 180" stroke="#28a745" stroke-width="3" marker-end="url(#arrow)"/>
-      <text x="705" y="170" font-size="12" fill="#28a745" text-anchor="middle" font-weight="bold">Product (L1)</text>
+        <!-- L3 to Effect II -->
+        <path d="M 180 185 L 325 185" stroke="#28a745" stroke-width="3" marker-end="url(#arrow)"/>
+        <text x="252" y="175" font-size="11" fill="#28a745" font-weight="bold" text-anchor="middle" id="svg_L3">L3</text>
 
-      <!-- Steam W1 into Effect I -->
-      <path d="M 500 100 L 550 100" stroke="#dc3545" stroke-width="3" marker-end="url(#arrow)"/>
-      <text x="525" y="90" font-size="12" fill="#dc3545" text-anchor="middle">Steam (W1)</text>
+        <!-- L2 to Effect I -->
+        <path d="M 455 185 L 600 185" stroke="#28a745" stroke-width="3" marker-end="url(#arrow)"/>
+        <text x="527" y="175" font-size="11" fill="#28a745" font-weight="bold" text-anchor="middle" id="svg_L2">L2</text>
 
-      <!-- Vapor V1 from Effect I to Effect II -->
-      <path d="M 610 70 L 610 30 L 360 30 L 360 70" fill="none" stroke="#dc3545" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="485" y="25" font-size="12" fill="#dc3545" text-anchor="middle">Vapor V1</text>
+        <!-- Product L1 out of Effect I -->
+        <path d="M 730 185 L 775 185" stroke="#28a745" stroke-width="3" marker-end="url(#arrow)"/>
+        <text x="752" y="175" font-size="11" fill="#28a745" font-weight="bold" text-anchor="middle" id="svg_L1">L1 (Product)</text>
 
-      <!-- Vapor V2 from Effect II to Effect III -->
-      <path d="M 360 70 L 360 45 L 110 45 L 110 70" fill="none" stroke="#dc3545" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="235" y="40" font-size="12" fill="#dc3545" text-anchor="middle">Vapor V2</text>
+        <!-- Steam W1 into Effect I -->
+        <path d="M 540 90 L 600 90" stroke="#dc3545" stroke-width="3" marker-end="url(#arrow)"/>
+        <text x="570" y="80" font-size="11" fill="#dc3545" font-weight="bold" text-anchor="middle" id="svg_W1">Steam W1</text>
 
-      <!-- Vapor V3 out of Effect III -->
-      <path d="M 110 70 L 110 20 L 50 20" fill="none" stroke="#dc3545" stroke-width="2" marker-end="url(#arrow)"/>
-      <text x="80" y="15" font-size="12" fill="#dc3545" text-anchor="middle">V3 (To Condenser)</text>
+        <!-- Vapor V1 from Effect I to Effect II -->
+        <path d="M 665 60 L 665 25 L 390 25 L 390 60" fill="none" stroke="#dc3545" stroke-width="2.5" marker-end="url(#arrow)"/>
+        <text x="527" y="20" font-size="11" fill="#dc3545" font-weight="bold" text-anchor="middle" id="svg_V1">Vapor V1</text>
 
-      <!-- SVG Arrowhead -->
-      <defs>
-        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
-        </marker>
-      </defs>
-    </svg>
+        <!-- Vapor V2 from Effect II to Effect III -->
+        <path d="M 390 60 L 390 40 L 115 40 L 115 60" fill="none" stroke="#dc3545" stroke-width="2.5" marker-end="url(#arrow)"/>
+        <text x="252" y="35" font-size="11" fill="#dc3545" font-weight="bold" text-anchor="middle" id="svg_V2">Vapor V2</text>
+
+        <!-- Vapor V3 to Condenser -->
+        <path d="M 115 60 L 115 15 L 40 15" fill="none" stroke="#dc3545" stroke-width="2.5" marker-end="url(#arrow)"/>
+        <text x="75" y="10" font-size="10" fill="#dc3545" font-weight="bold" text-anchor="middle" id="svg_V3">V3 (Condenser)</text>
+
+        <!-- SVG Arrow definition -->
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#333"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
   </div>
 
-  <!-- Results Section -->
+  <!-- Results Block -->
   <div class="results-section" id="resultsBlock" style="display:none;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h3>Calculated Results</h3>
+    <div class="results-header">
+      <h3>Computed Results & Mass Balances</h3>
       <div class="unit-toggle">
-        <span>Units: </span>
-        <button type="button" id="btnSI" class="active" onclick="switchUnits('SI')">SI (kg/s, °C)</button>
-        <button type="button" id="btnImperial" onclick="switchUnits('Imperial')">British (lb/h, °F)</button>
+        <span>Display Units: </span>
+        <button type="button" id="btnSI" class="active" onclick="switchUnits('SI')">SI (kg/s)</button>
+        <button type="button" id="btnImperial" onclick="switchUnits('Imperial')">British (lb/h)</button>
       </div>
     </div>
 
     <table>
       <thead>
         <tr>
-          <th>Parameter</th>
+          <th>Stream Description</th>
           <th>Symbol</th>
-          <th>Value (<span class="unit-label-mass">kg/s</span>)</th>
+          <th>Calculated Flow (<span class="unit-label-mass">kg/s</span>)</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>Steam Consumption</td>
+          <td>Steam Consumption (Effect I)</td>
           <td>$W_1$</td>
           <td id="res_W1">-</td>
         </tr>
         <tr>
-          <td>Liquid Stream Effect I (Product)</td>
+          <td>Concentrated Product Liquid Stream (Effect I)</td>
           <td>$L_1$</td>
           <td id="res_L1">-</td>
         </tr>
         <tr>
-          <td>Liquid Stream Effect II</td>
+          <td>Intermediate Liquid Stream (Effect II $\rightarrow$ Effect I)</td>
           <td>$L_2$</td>
           <td id="res_L2">-</td>
         </tr>
         <tr>
-          <td>Liquid Stream Effect III (Feed)</td>
-          <td>$L_3$</td>
+          <td>Fresh Liquid Solution Feed (Effect III)</td>
+          <td>$L_3 = F_1$</td>
           <td id="res_L3">-</td>
         </tr>
         <tr>
-          <td>Vapor Produced Effect I</td>
+          <td>Vapor Produced in Effect I</td>
           <td>$V_1$</td>
           <td id="res_V1">-</td>
         </tr>
         <tr>
-          <td>Vapor Produced Effect II</td>
+          <td>Vapor Produced in Effect II</td>
           <td>$V_2$</td>
           <td id="res_V2">-</td>
         </tr>
         <tr>
-          <td>Vapor Produced Effect III</td>
+          <td>Vapor Produced in Effect III</td>
           <td>$V_3$</td>
           <td id="res_V3">-</td>
         </tr>
-        <tr>
+        <tr class="highlight-row">
           <td><strong>Steam Economy</strong></td>
           <td><strong>Economy</strong></td>
-          <td><strong id="res_Economy">-</strong> (kg evap / kg steam)</td>
+          <td><strong id="res_Economy">-</strong> (kg evaporated / kg steam)</td>
         </tr>
       </tbody>
     </table>
@@ -413,8 +475,53 @@
   let rawResults = {};
   let currentUnit = 'SI';
 
+  function solveLinearSystem(A, B) {
+    // Gauss-Jordan elimination for 3x3 system
+    let n = B.length;
+    for (let i = 0; i < n; i++) {
+      let maxEl = Math.abs(A[i][i]);
+      let maxRow = i;
+      for (let k = i + 1; k < n; k++) {
+        if (Math.abs(A[k][i]) > maxEl) {
+          maxEl = Math.abs(A[k][i]);
+          maxRow = k;
+        }
+      }
+      for (let k = i; k < n; k++) {
+        let tmp = A[maxRow][k];
+        A[maxRow][k] = A[i][k];
+        A[i][k] = tmp;
+      }
+      let tmp = B[maxRow];
+      B[maxRow] = B[i];
+      B[i] = tmp;
+
+      for (let k = i + 1; k < n; k++) {
+        let c = -A[k][i] / A[i][i];
+        for (let j = i; j < n; j++) {
+          if (i === j) {
+            A[k][j] = 0;
+          } else {
+            A[k][j] += c * A[i][j];
+          }
+        }
+        B[k] += c * B[i];
+      }
+    }
+
+    let x = new Array(n).fill(0);
+    for (let i = n - 1; i >= 0; i--) {
+      let sum = 0;
+      for (let j = i + 1; j < n; j++) {
+        sum += A[i][j] * x[j];
+      }
+      x[i] = (B[i] - sum) / A[i][i];
+    }
+    return x;
+  }
+
   function calculateEvaporator() {
-    // Read input values
+    // 1. Read Inputs
     const F1 = parseFloat(document.getElementById('F1').value);
     const xF1 = parseFloat(document.getElementById('xF1').value);
     const xS3 = parseFloat(document.getElementById('xS3').value);
@@ -432,53 +539,60 @@
     const lambdaV1 = parseFloat(document.getElementById('lambdaV1').value);
     const lambdaV2 = parseFloat(document.getElementById('lambdaV2').value);
 
-    // Overall Material Balance
-    // Solute Balance: F1 * xF1 = L1 * xS3
-    const L1 = (F1 * xF1) / xS3; // L1 = Product flow
-    const totalEvaporation = F1 - L1; // V1 + V2 + V3
+    // Update diagram text
+    document.getElementById('diag_T1').textContent = `T1 = ${T1} °C`;
+    document.getElementById('diag_T2').textContent = `T2 = ${T2} °C`;
+    document.getElementById('diag_T3').textContent = `T3 = ${T3} °C`;
 
-    // System of Equations for Backward Feed:
-    // L3 = F1 (known)
-    // V1 = L2 - L1  =>  L2 - V1 = L1
-    // V2 = L3 - L2  =>  L2 + V2 = L3
-    // V3 = F1 - L2 - V1 ...
-    //
-    // Energy Balance 1 (Effect I):
-    // L2 * Cp2 * (T1 - T2) + W1 * lambdaW1 = V1 * lambdaV1
-    // => W1 * lambdaW1 - V1 * lambdaV1 + L2 * Cp2 * (T1 - T2) = 0
-    //
-    // Energy Balance 2 (Effect II):
-    // L3 * Cp3 * (T2 - T3) + V1 * lambdaV1 = V2 * lambdaV2
-    // => V1 * lambdaV1 - V2 * lambdaV2 = - L3 * Cp3 * (T2 - T3)
-    //
-    // Since L3 = F1, V2 = F1 - L2
-    // V1 * lambdaV1 - (F1 - L2) * lambdaV2 = - F1 * Cp3 * (T2 - T3)
-    // V1 * lambdaV1 + L2 * lambdaV2 = F1 * lambdaV2 - F1 * Cp3 * (T2 - T3)
+    // 2. Solute Material Balance
+    // F1 * xF1 = L1 * xS3
+    const L1 = (F1 * xF1) / xS3;
+    const L3 = F1; // Feed entering Effect III
 
-    const rhs2 = F1 * lambdaV2 - F1 * Cp3 * (T2 - T3);
-    const V1 = (rhs2) / (lambdaV1 + lambdaV2); // Approximate solution based on mass flow coupling
-    const L2 = F1 - V1; // Simplifying flow relation
+    // 3. Formulate Heat Balances for Backward Feed Mode:
+    // Effect III: F1 * Cp3 * (T3 - TF) + V2 * lambdaV2 = V3 * lambdaV2 (approx)
+    // Streams:
+    // Effect I: L2 * Cp2 * (T1 - T2) + W1 * lambdaW1 = V1 * lambdaV1
+    // Effect II: L3 * Cp3 * (T2 - T3) + V1 * lambdaV1 = V2 * lambdaV2
+    // Overall mass relation: V1 + V2 + V3 = F1 - L1
+    // L2 = L1 + V1
+    // V2 = L3 - L2 = F1 - (L1 + V1)
+
+    // Heat balance 2 -> V1 * lambdaV1 + F1 * Cp3 * (T2 - T3) = (F1 - L1 - V1) * lambdaV2
+    // V1 * (lambdaV1 + lambdaV2) = (F1 - L1) * lambdaV2 - F1 * Cp3 * (T2 - T3)
+
+    const rhs_V1 = (F1 - L1) * lambdaV2 - F1 * Cp3 * (T2 - T3);
+    const V1 = rhs_V1 / (lambdaV1 + lambdaV2);
+
+    const L2 = L1 + V1;
     const V2 = F1 - L2;
-    const V3 = totalEvaporation - V1 - V2;
+    const V3 = F1 - L1 - V1 - V2;
 
-    // Heat Balance for W1:
-    // W1 * lambdaW1 = V1 * lambdaV1 - L2 * Cp2 * (T1 - T2)
-    const heatReq = V1 * lambdaV1 - L2 * Cp2 * (T1 - T2);
-    const W1 = heatReq / lambdaW1;
+    // Heat balance 1 -> W1 * lambdaW1 = V1 * lambdaV1 - L2 * Cp2 * (T1 - T2)
+    const W1 = (V1 * lambdaV1 - L2 * Cp2 * (T1 - T2)) / lambdaW1;
 
     const economy = (V1 + V2 + V3) / W1;
 
-    // Save results in SI
+    // Store raw SI results
     rawResults = {
       W1: W1,
       L1: L1,
       L2: L2,
-      L3: F1,
+      L3: L3,
       V1: V1,
       V2: V2,
       V3: V3,
       Economy: economy
     };
+
+    // Update SVG label flows
+    document.getElementById('svg_L1').textContent = `L1 = ${L1.toFixed(2)} kg/s`;
+    document.getElementById('svg_L2').textContent = `L2 = ${L2.toFixed(2)} kg/s`;
+    document.getElementById('svg_L3').textContent = `L3 = ${L3.toFixed(2)} kg/s`;
+    document.getElementById('svg_W1').textContent = `W1 = ${W1.toFixed(2)} kg/s`;
+    document.getElementById('svg_V1').textContent = `V1 = ${V1.toFixed(2)} kg/s`;
+    document.getElementById('svg_V2').textContent = `V2 = ${V2.toFixed(2)} kg/s`;
+    document.getElementById('svg_V3').textContent = `V3 = ${V3.toFixed(2)} kg/s`;
 
     document.getElementById('resultsBlock').style.display = 'block';
     updateDisplay();
@@ -495,7 +609,7 @@
     if (!rawResults.W1) return;
 
     const isImperial = currentUnit === 'Imperial';
-    const factor = isImperial ? 7936.64 : 1.0; // 1 kg/s = 7936.64 lb/h
+    const factor = isImperial ? 7936.641 : 1.0; // Conversion factor from kg/s to lb/h
     const unitText = isImperial ? 'lb/h' : 'kg/s';
 
     document.querySelectorAll('.unit-label-mass').forEach(el => el.textContent = unitText);
